@@ -1,24 +1,8 @@
 # Node.js with Cloudant app
 description to follow
 
-this branch has a hybrid `server.js` which works with Cloud Foundry and Code Engine environments (and locally)
 
-## Deployment steps (rough guide), Cloud Foundry
-
-- create a Cloudant instance
-- clone this repo
-- set the Cloud Foundry org and space
-  ```sh
-  ibmcloud target --cf
-  ```
-- push the code
-  ```sh
-  ibmcloud cf push cf2ce-demo
-  ```
-- bind / connect Cloudant to the app with Manager role
-- restage the app
-
-## Deployment steps (rough guide), Code Engine
+## Deployment steps (rough guide)
     
 - Create a Code Engine project and switch to it.
 - Configure a secret for the container registry, so that new images can be pushed there and pulled for deployment.

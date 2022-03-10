@@ -8,7 +8,6 @@
 var express=require('express');
 var bodyParser=require('body-parser');
 var app = express();
-var cfenv = require("cfenv");
 const { IamAuthenticator } = require('ibm-cloud-sdk-core');
 const { CloudantV1 } = require('@ibm-cloud/cloudant');
 // load local .env if present
@@ -20,26 +19,9 @@ app.use(bodyParser.json());
 
 // set the database name
 const dbName = 'mydb';
+
 let cloudant_apikey,cloudant_url;
 
-// load local VCAP configuration  and service credentials if present
-var vcapLocal;
-try {
-  vcapLocal = require('./vcap-local.json');
-  console.log("Loaded local VCAP", vcapLocal);
-} catch (e) { }
-
-const appEnvOpts = vcapLocal ? { vcap: vcapLocal} : {}
-
-// check for Cloud Foundry or local env
-if(process.env.VCAP_SERVICES || vcapLocal) {
-  // extract the Cloudant API key and URL from the credentials
-  const appEnv = cfenv.getAppEnv(appEnvOpts);
-  cloudant_apikey=appEnv.services['cloudantNoSQLDB'][0].credentials.apikey;
-  cloudant_url=appEnv.services['cloudantNoSQLDB'][0].credentials.url;
-}
-
-// check for Code Engine
 // extract the Cloudant API key and URL from the credentials
 // !!! note the lower case service name !!!
 if(process.env.CE_SERVICES) {
@@ -54,7 +36,6 @@ if (process.env.CLOUDANT_URL) {
 if (process.env.CLOUDANT_APIKEY) {
   cloudant_apikey=process.env.CLOUDANT_APIKEY;
 }
-
 
 // establish IAM-based authentication
 const authenticator = new IamAuthenticator({
