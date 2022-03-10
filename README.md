@@ -11,3 +11,7 @@ Three branches:
 - [2cf_ce_intermediate_hybrid](https://github.com/IBM-Cloud/CloudFoundry-to-CodeEngine/tree/2cf_ce_intermediate_hybrid) is the branch for a hybrid code version. The code supports deployment to both Cloud Foundry and Code Engine runtime environments. It could be used while running the app in both environments during the transition phase. The app could be enhanced and bugs fixed regardless of the actual runtime environment.
 - [3codeengine_target](https://github.com/IBM-Cloud/CloudFoundry-to-CodeEngine/tree/3codeengine_target) has the code after the migration. It only supports deployment to IBM Cloud Code Engine.
 
+# Resources
+
+- IBM Cloud documentation: [Migrating Cloud Foundry applications to Code Engine] ](https://cloud.ibm.com/docs/codeengine?topic=codeengine-migrate-cf-ce-tutorial)
+- [Cloud Foundry vs. Code Engine terminology](terminology.md)
