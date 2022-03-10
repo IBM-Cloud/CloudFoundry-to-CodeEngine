@@ -1,0 +1,13 @@
+{
+  "services": {
+    "cloudantNoSQLDB": [
+      {
+        "credentials": {
+          "apikey": "generated-API-key",
+          "url":"CLOUDANT_DATABASE_URL"
+        },
+        "label": "cloudantNoSQLDB"
+      }
+    ]
+  }
+}
