@@ -1,14 +1,15 @@
-FROM node:16-alpine
+FROM node:16 AS build-env
 
 ADD views /app/views
 ADD package.json /app
+ADD package-lock.json /app
 ADD server.js /app
 
-RUN cd /app; npm install
+RUN cd /app; npm ci --only=production
 
-ENV NODE_ENV production
+FROM gcr.io/distroless/nodejs:16
+COPY --from=build-env /app /app
+WORKDIR /app
 ENV PORT 8080
 EXPOSE 8080
-
-WORKDIR "/app"
-CMD [ "npm", "start" ]
+CMD [ "server.js" ]
