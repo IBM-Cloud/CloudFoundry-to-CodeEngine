@@ -15,3 +15,4 @@ Three branches:
 
 - IBM Cloud documentation: [Migrating Cloud Foundry applications to Code Engine] ](https://cloud.ibm.com/docs/codeengine?topic=codeengine-migrate-cf-ce-tutorial)
 - [Cloud Foundry vs. Code Engine terminology](terminology.md)
+- [A comparison of Cloud Foundry and Code Engine CLI commands](cli_commands.md)
