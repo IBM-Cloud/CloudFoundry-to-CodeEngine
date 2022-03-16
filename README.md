@@ -1,9 +1,12 @@
 # Migrating an app from Cloud Foundry to IBM Cloud Code Engine
-This repository contains a code and instructions for a simple but typical "getting started" web app. It is written in Node.js (JavaScript) and uses the [Express web framework](https://expressjs.com/). An [IBM Cloudant NoSQL database](https://www.ibm.com/cloud/cloudant) serves as [backing service](https://12factor.net/backing-services) to store data displayed by the app. As typical for cloud native /12 twelve factor apps, the sample solution is based on discrete, reusable components which act as microservices to make up the overall app. Both the deployed Node.js program as well as the database can be scaled, improved or even replaced independently. They work together because of how they are [configured](https://12factor.net/config) and by using well-defined APIs.
+This repository contains code and instructions for a simple but typical "getting started" web app. It is written in Node.js (JavaScript) and uses the [Express web framework](https://expressjs.com/). An [IBM Cloudant NoSQL database](https://www.ibm.com/cloud/cloudant) serves as [backing service](https://12factor.net/backing-services) to store data displayed by the app. As typical for cloud native /12 twelve factor apps, the sample solution is based on discrete, reusable components which act as microservices to make up the overall app. Both the deployed Node.js program as well as the database can be scaled, improved or even replaced independently. They work together because of how they are [configured](https://12factor.net/config) and by using well-defined APIs.
 
 Thus, the Cloudant database can be configured to work as attached resource with the app versions deployed to Cloud Foundry and Code Engine. This is shown in the architecture diagram below. The solution is kept to these two components for simplicity.
 
 ![architecture diagram showing the getting started app](images/getting-started-CF2CE.png)
+
+The code is discussed by the following blog post:
+- [From Cloud Foundry to Code Engine: Service Bindings and Code](https://www.ibm.com/cloud/blog/from-cloud-foundry-to-code-engine-service-bindings-and-code)
 
 ### Structure
 Three branches:
