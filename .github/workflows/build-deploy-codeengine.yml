@@ -19,6 +19,7 @@ jobs:
       CE_PROJNAME: ${{ secrets.CE_PROJNAME }}
       CE_APPNAME: ${{ secrets.CE_APPNAME }}
       ICR_HOSTNAME: ${{ secrets.ICR_HOSTNAME }}
+      ICR_USER: iamapikey
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
@@ -31,29 +32,24 @@ jobs:
           ibmcloud plugin install -f code-engine
           ibmcloud plugin install -f container-registry
 
-      # authenticate to IBM Cloud with API key and login to Container Registry
-      - name: Authenticate with IBM Cloud CLI
-        run: |
-          ibmcloud login --apikey "${IBM_CLOUD_API_KEY}" -r "${IBM_CLOUD_REGION}" -g "${IBM_CLOUD_RESOURCE_GROUP}"
-          ibmcloud cr region-set "${IBM_CLOUD_REGION}"
-          ibmcloud cr login
-      
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v3.6.2
+      - name: Log in to Container Registry
+        uses: docker/login-action@v1.10.0
         with:
-          images: ${{ env.ICR_HOSTNAME }}/${{ env.ICR_NAMESPACE }}/${{ env.ICR_REPOSITORY }}
-      
+          registry: ${{ env.ICR_HOSTNAME }}
+          username: ${{ env.ICR_USER }}
+          password: ${{ env.IBM_CLOUD_API_KEY }}
+           
       - name: Build and push image
         uses: docker/build-push-action@v2.8.0
         with:
-          context: ./
+          context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ env.ICR_NAMESPACE }}/${{ env.ICR_REPOSITORY }}:latest ${{ GITHUB_SHA }}
+
       # select the Code Engine project and update the app to get a new revision
       - name: Create new Code Engine revision
         run: |
+          ibmcloud login --apikey "${IBM_CLOUD_API_KEY}" -r "${IBM_CLOUD_REGION}" -g "${IBM_CLOUD_RESOURCE_GROUP}"
           ibmcloud ce project select -n "${CE_PROJNAME}"
           ibmcloud ce app update -n "${CE_APPNAME}"
