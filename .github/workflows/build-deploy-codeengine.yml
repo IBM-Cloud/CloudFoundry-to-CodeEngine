@@ -16,9 +16,10 @@ jobs:
       IBM_CLOUD_RESOURCE_GROUP: ${{ secrets.IBM_CLOUD_RESOURCE_GROUP }}
       ICR_NAMESPACE: ${{ secrets.ICR_NAMESPACE }}
       ICR_REPOSITORY: ${{ secrets.ICR_REPOSITORY }}
+      CE_PROJNAME: ${{ secrets.CE_PROJNAME }}
+      CE_APPNAME: ${{ secrets.CE_APPNAME }}
       ICR_REGION: us
       REGISTRY_HOSTNAME: us.icr.io
-      IMAGE_NAME: iks-test
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
@@ -55,6 +56,5 @@ jobs:
 
       - name: Create new Code Engine revision
         run: |
-          ibmcloud login --apikey "${IBM_CLOUD_API_KEY}" -r "${IBM_CLOUD_REGION}" -g "${IBM_CLOUD_RESOURCE_GROUP}"
           ibmcloud ce project select -n "${CE_PROJNAME}"
           ibmcloud ce app update -n "${CE_APPNAME}"
