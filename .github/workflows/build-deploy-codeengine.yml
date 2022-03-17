@@ -1,0 +1,60 @@
+name: Publish container image
+
+on:
+  push:
+    branches:
+      - 3codeengine_target
+
+jobs:
+  publish_to_registry:
+    name: Build and push image to registry
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_SHA: ${{ github.sha }}
+      IBM_CLOUD_API_KEY: ${{ secrets.IBM_CLOUD_API_KEY }}
+      IBM_CLOUD_REGION: us-south
+      IBM_CLOUD_RESOURCE_GROUP: ${{ secrets.IBM_CLOUD_RESOURCE_GROUP }}
+      ICR_NAMESPACE: ${{ secrets.ICR_NAMESPACE }}
+      ICR_REPOSITORY: ${{ secrets.ICR_REPOSITORY }}
+      ICR_REGION: us
+      REGISTRY_HOSTNAME: us.icr.io
+      IMAGE_NAME: iks-test
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      
+      - name: Install IBM Cloud CLI
+        run: |
+          curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+          ibmcloud --version
+          ibmcloud config --check-version=false
+          ibmcloud plugin install -f code-engine
+          ibmcloud plugin install -f container-registry
+
+       # Authenticate with IBM Cloud CLI
+      - name: Authenticate with IBM Cloud CLI
+        run: |
+          ibmcloud login --apikey "${IBM_CLOUD_API_KEY}" -r "${IBM_CLOUD_REGION}" -g "${IBM_CLOUD_RESOURCE_GROUP}"
+          ibmcloud cr region-set "${IBM_CLOUD_REGION}"
+          ibmcloud cr login
+      
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v3.6.2
+        with:
+          images: ${{ env.REGISTRY_HOSTNAME }}/${{ env.ICR_NAMESPACE }}/${{ env.ICR_REPOSITORY }}
+      
+      - name: Build and push image
+        uses: docker/build-push-action@v2.8.0
+        with:
+          context: ./
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Create new Code Engine revision
+        run: |
+          ibmcloud login --apikey "${IBM_CLOUD_API_KEY}" -r "${IBM_CLOUD_REGION}" -g "${IBM_CLOUD_RESOURCE_GROUP}"
+          ibmcloud ce project select -n "${CE_PROJNAME}"
+          ibmcloud ce app update -n "${CE_APPNAME}"
