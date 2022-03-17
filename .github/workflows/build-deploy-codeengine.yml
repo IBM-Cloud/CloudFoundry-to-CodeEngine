@@ -1,0 +1,55 @@
+name: Build container image and deploy new Code Engine app revision
+# only run on push on that specific branch
+on:
+  push:
+    branches:
+      - 3codeengine_target
+
+jobs:
+  publish_to_registry:
+    name: Build and push image to registry
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_SHA: ${{ github.sha }}
+      IBM_CLOUD_API_KEY: ${{ secrets.IBM_CLOUD_API_KEY }}
+      IBM_CLOUD_REGION: ${{ secrets.IBM_CLOUD_REGION }}
+      IBM_CLOUD_RESOURCE_GROUP: ${{ secrets.IBM_CLOUD_RESOURCE_GROUP }}
+      ICR_NAMESPACE: ${{ secrets.ICR_NAMESPACE }}
+      ICR_REPOSITORY: ${{ secrets.ICR_REPOSITORY }}
+      CE_PROJNAME: ${{ secrets.CE_PROJNAME }}
+      CE_APPNAME: ${{ secrets.CE_APPNAME }}
+      ICR_HOSTNAME: ${{ secrets.ICR_HOSTNAME }}
+      ICR_USER: iamapikey
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      # install the IBM Cloud CLI and the Code Engine and Container Registry plugins
+      - name: Install IBM Cloud CLI
+        run: |
+          curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+          ibmcloud --version
+          ibmcloud config --check-version=false
+          ibmcloud plugin install -f code-engine
+          ibmcloud plugin install -f container-registry
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v1.10.0
+        with:
+          registry: ${{ env.ICR_HOSTNAME }}
+          username: ${{ env.ICR_USER }}
+          password: ${{ env.IBM_CLOUD_API_KEY }}
+           
+      - name: Build and push image
+        uses: docker/build-push-action@v2.8.0
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ env.ICR_NAMESPACE }}/${{ env.ICR_REPOSITORY }}:latest ${{ GITHUB_SHA }}
+
+      # select the Code Engine project and update the app to get a new revision
+      - name: Create new Code Engine revision
+        run: |
+          ibmcloud login --apikey "${IBM_CLOUD_API_KEY}" -r "${IBM_CLOUD_REGION}" -g "${IBM_CLOUD_RESOURCE_GROUP}"
+          ibmcloud ce project select -n "${CE_PROJNAME}"
+          ibmcloud ce app update -n "${CE_APPNAME}"
