@@ -45,7 +45,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ ICR_NAMESPACE }}/${{ ICR_REPOSITORY }}:latest
+          tags: ${{ env.ICR_NAMESPACE }}/${{ env.ICR_REPOSITORY }}:latest
 
       # select the Code Engine project and update the app to get a new revision
       - name: Create new Code Engine revision
