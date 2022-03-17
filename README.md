@@ -1,5 +1,5 @@
 # Node.js with Cloudant app
-description to follow
+This is the Code Engine version of the app.
 
 
 ## Deployment steps (rough guide)
