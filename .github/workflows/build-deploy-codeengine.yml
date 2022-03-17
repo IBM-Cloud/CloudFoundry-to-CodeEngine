@@ -1,5 +1,5 @@
-name: Publish container image
-
+name: Build container image and deploy new Code Engine app revision
+# only run on push on that specific branch
 on:
   push:
     branches:
@@ -12,18 +12,17 @@ jobs:
     env:
       GITHUB_SHA: ${{ github.sha }}
       IBM_CLOUD_API_KEY: ${{ secrets.IBM_CLOUD_API_KEY }}
-      IBM_CLOUD_REGION: us-south
+      IBM_CLOUD_REGION: ${{ secrets.IBM_CLOUD_REGION }}
       IBM_CLOUD_RESOURCE_GROUP: ${{ secrets.IBM_CLOUD_RESOURCE_GROUP }}
       ICR_NAMESPACE: ${{ secrets.ICR_NAMESPACE }}
       ICR_REPOSITORY: ${{ secrets.ICR_REPOSITORY }}
       CE_PROJNAME: ${{ secrets.CE_PROJNAME }}
       CE_APPNAME: ${{ secrets.CE_APPNAME }}
-      ICR_REGION: us
-      REGISTRY_HOSTNAME: us.icr.io
+      ICR_HOSTNAME: ${{ secrets.ICR_HOSTNAME }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
-      
+      # install the IBM Cloud CLI and the Code Engine and Container Registry plugins
       - name: Install IBM Cloud CLI
         run: |
           curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
@@ -32,7 +31,7 @@ jobs:
           ibmcloud plugin install -f code-engine
           ibmcloud plugin install -f container-registry
 
-       # Authenticate with IBM Cloud CLI
+      # authenticate to IBM Cloud with API key and login to Container Registry
       - name: Authenticate with IBM Cloud CLI
         run: |
           ibmcloud login --apikey "${IBM_CLOUD_API_KEY}" -r "${IBM_CLOUD_REGION}" -g "${IBM_CLOUD_RESOURCE_GROUP}"
@@ -43,7 +42,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3.6.2
         with:
-          images: ${{ env.REGISTRY_HOSTNAME }}/${{ env.ICR_NAMESPACE }}/${{ env.ICR_REPOSITORY }}
+          images: ${{ env.ICR_HOSTNAME }}/${{ env.ICR_NAMESPACE }}/${{ env.ICR_REPOSITORY }}
       
       - name: Build and push image
         uses: docker/build-push-action@v2.8.0
@@ -53,7 +52,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
+      # select the Code Engine project and update the app to get a new revision
       - name: Create new Code Engine revision
         run: |
           ibmcloud ce project select -n "${CE_PROJNAME}"
