@@ -3,7 +3,7 @@ name: Build container image and deploy new Code Engine app revision
 on:
   push:
     branches:
-      - 3codeengine_target
+      - CHANGE_TO_BRANCH
 
 jobs:
   publish_to_registry:
