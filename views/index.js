@@ -20,7 +20,7 @@ inputName.onkeypress = function(event) {
 
 // get all names from database
 function getNames() {
-  http.open('GET', location.origin + '/api/names');
+  http.open('GET', '/api/names');
   http.onreadystatechange = function() {
     if (http.readyState === XMLHttpRequest.DONE && http.status === 200) {
       responseData = JSON.parse(http.responseText);
@@ -36,7 +36,7 @@ function getNames() {
 // add new name to database
 function addName(name) {
   name = sanitize(name);
-  http.open('POST', location.origin + '/api/names');
+  http.open('POST', '/api/names');
   http.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
   let timestamp = new Date().toISOString();
   let data = 'name=' + name + '&timestamp=' + timestamp;
